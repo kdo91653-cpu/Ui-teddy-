@@ -14,16 +14,16 @@ getgenv().Nousigi = true
 local DisableAnimation = game.Players.LocalPlayer.PlayerGui:FindFirstChild('TouchGui')
 
 local T1UIColor = {
-    ["Border Color"] = Color3.fromRGB(50, 50, 50),
+    ["Border Color"] = Color3.fromRGB(170, 0, 255),
     ["Click Effect Color"] = Color3.fromRGB(200, 40, 40),
     ["Setting Icon Color"] = Color3.fromRGB(200, 200, 200),
     ["Logo Image"] = "rbxassetid://105245380363493",
     ["Search Icon Color"] = Color3.fromRGB(200, 40, 40),
     ["Search Icon Highlight Color"] = Color3.fromRGB(255, 60, 60),
-    ["GUI Text Color"] = Color3.fromRGB(240, 240, 240),
-    ["Text Color"] = Color3.fromRGB(240, 240, 240),
+    ["GUI Text Color"] = Color3.fromRGB(0, 70, 140)
+    ["Text Color"] = Color3.fromRGB(0, 80, 160),
     ["Placeholder Text Color"] = Color3.fromRGB(100, 100, 100),
-    ["Title Text Color"] = Color3.fromRGB(255, 255, 255),
+    ["Title Text Color"] = Color3.fromRGB(0, 100, 200),
     
     ["Background Main Color"] = Color3.fromRGB(15, 15, 15), 
     ["Background 1 Color"] = Color3.fromRGB(22, 22, 22),
@@ -170,7 +170,7 @@ ImageLabel.Size = UDim2.new(0, 40, 0, 40)
 ImageLabel.BackgroundTransparency = 1
 ImageLabel.BorderSizePixel = 0
 ImageLabel.ImageColor3 = Color3.fromRGB(255, 255, 255)
-ImageLabel.Image = "rbxassetid://105245380363493"
+ImageLabel.Image = "rbxassetid://111450164466537"
 
 local isToggled = getgenv().UIToggled or false
 local isHovering = false
@@ -574,7 +574,7 @@ function Library:Notify(Setting, bypass)
 end
 
 function Library:CreateWindow(Setting)
-    local TitleNameMain = Setting.Title or "Night Mystic"
+    local TitleNameMain = Setting.Title or "Khanhly hub"
     getgenv().MainDesc = Setting.Desc or Setting.Subtitle or ""
     
     if Setting.Image then
