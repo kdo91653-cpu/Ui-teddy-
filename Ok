@@ -1,0 +1,211 @@
+local Library = {}
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local UserInputService = game:GetService("UserInputService")
+
+-- Tránh trùng lặp UI khi chạy lại script
+for _, v in pairs(CoreGui:GetChildren()) do
+    if v.Name == "NightHubUI" then v:Destroy() end
+end
+
+function Library:CreateWindow(Config)
+    local WindowName = Config.Name or "Night Hub"
+    
+    local NightHubUI = Instance.new("ScreenGui")
+    NightHubUI.Name = "NightHubUI"
+    NightHubUI.Parent = CoreGui
+    NightHubUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+    local MainFrame = Instance.new("Frame")
+    MainFrame.Name = "MainFrame"
+    MainFrame.Parent = NightHubUI
+    MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
+    MainFrame.Size = UDim2.new(0, 600, 0, 400)
+    MainFrame.Active = true
+    MainFrame.Draggable = true -- Hỗ trợ kéo thả cơ bản
+    
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 8)
+    UICorner.Parent = MainFrame
+
+    local TopBar = Instance.new("Frame")
+    TopBar.Name = "TopBar"
+    TopBar.Parent = MainFrame
+    TopBar.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    TopBar.Size = UDim2.new(1, 0, 0, 40)
+    
+    local TopBarCorner = Instance.new("UICorner")
+    TopBarCorner.CornerRadius = UDim.new(0, 8)
+    TopBarCorner.Parent = TopBar
+
+    local Title = Instance.new("TextLabel")
+    Title.Parent = TopBar
+    Title.BackgroundTransparency = 1
+    Title.Position = UDim2.new(0, 15, 0, 0)
+    Title.Size = UDim2.new(0, 200, 1, 0)
+    Title.Font = Enum.Font.GothamBold
+    Title.Text = WindowName
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextSize = 16
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+
+    local TabContainer = Instance.new("Frame")
+    TabContainer.Name = "TabContainer"
+    TabContainer.Parent = MainFrame
+    TabContainer.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    TabContainer.Position = UDim2.new(0, 10, 0, 50)
+    TabContainer.Size = UDim2.new(0, 140, 1, -60)
+    
+    local TabUICorner = Instance.new("UICorner")
+    TabUICorner.CornerRadius = UDim.new(0, 6)
+    TabUICorner.Parent = TabContainer
+    
+    local TabListLayout = Instance.new("UIListLayout")
+    TabListLayout.Parent = TabContainer
+    TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    TabListLayout.Padding = UDim.new(0, 5)
+
+    local ContentContainer = Instance.new("Frame")
+    ContentContainer.Name = "ContentContainer"
+    ContentContainer.Parent = MainFrame
+    ContentContainer.BackgroundTransparency = 1
+    ContentContainer.Position = UDim2.new(0, 160, 0, 50)
+    ContentContainer.Size = UDim2.new(1, -170, 1, -60)
+
+    local Window = {}
+    local FirstTab = true
+
+    function Window:CreateTab(TabName)
+        local TabButton = Instance.new("TextButton")
+        TabButton.Parent = TabContainer
+        TabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+        TabButton.Size = UDim2.new(1, -10, 0, 35)
+        TabButton.Position = UDim2.new(0, 5, 0, 0)
+        TabButton.Font = Enum.Font.GothamSemibold
+        TabButton.Text = "  " .. TabName
+        TabButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TabButton.TextSize = 14
+        TabButton.TextXAlignment = Enum.TextXAlignment.Left
+        
+        Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
+
+        local TabPage = Instance.new("ScrollingFrame")
+        TabPage.Name = TabName
+        TabPage.Parent = ContentContainer
+        TabPage.Active = true
+        TabPage.BackgroundTransparency = 1
+        TabPage.Size = UDim2.new(1, 0, 1, 0)
+        TabPage.ScrollBarThickness = 4
+        TabPage.Visible = FirstTab
+        
+        local PageLayout = Instance.new("UIListLayout")
+        PageLayout.Parent = TabPage
+        PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        PageLayout.Padding = UDim.new(0, 8)
+
+        if FirstTab then
+            TabButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+            TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            FirstTab = false
+        end
+
+        TabButton.MouseButton1Click:Connect(function()
+            for _, v in pairs(TabContainer:GetChildren()) do
+                if v:IsA("TextButton") then
+                    TweenService:Create(v, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+                end
+            end
+            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 120, 255), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
+
+            for _, page in pairs(ContentContainer:GetChildren()) do
+                if page:IsA("ScrollingFrame") then page.Visible = false end
+            end
+            TabPage.Visible = true
+        end)
+
+        local TabElements = {}
+
+        function TabElements:CreateButton(BtnConfig)
+            local BtnName = BtnConfig.Name or "Button"
+            local Callback = BtnConfig.Callback or function() end
+
+            local Button = Instance.new("TextButton")
+            Button.Parent = TabPage
+            Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            Button.Size = UDim2.new(1, -10, 0, 40)
+            Button.Font = Enum.Font.Gotham
+            Button.Text = BtnName
+            Button.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Button.TextSize = 14
+            
+            Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
+
+            Button.MouseButton1Click:Connect(function()
+                Callback()
+                -- Hiệu ứng click
+                TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(0, 120, 255)}):Play()
+                task.wait(0.1)
+                TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+            end)
+        end
+
+        function TabElements:CreateToggle(ToggleConfig)
+            local TglName = ToggleConfig.Name or "Toggle"
+            local Default = ToggleConfig.Default or false
+            local Callback = ToggleConfig.Callback or function() end
+
+            local ToggleFrame = Instance.new("Frame")
+            ToggleFrame.Parent = TabPage
+            ToggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            ToggleFrame.Size = UDim2.new(1, -10, 0, 40)
+            Instance.new("UICorner", ToggleFrame).CornerRadius = UDim.new(0, 6)
+
+            local Label = Instance.new("TextLabel")
+            Label.Parent = ToggleFrame
+            Label.BackgroundTransparency = 1
+            Label.Position = UDim2.new(0, 15, 0, 0)
+            Label.Size = UDim2.new(0, 200, 1, 0)
+            Label.Font = Enum.Font.Gotham
+            Label.Text = TglName
+            Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Label.TextSize = 14
+            Label.TextXAlignment = Enum.TextXAlignment.Left
+
+            local ToggleBtn = Instance.new("TextButton")
+            ToggleBtn.Parent = ToggleFrame
+            ToggleBtn.BackgroundColor3 = Default and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(50, 50, 50)
+            ToggleBtn.Position = UDim2.new(1, -55, 0.5, -10)
+            ToggleBtn.Size = UDim2.new(0, 40, 0, 20)
+            ToggleBtn.Text = ""
+            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
+
+            local Indicator = Instance.new("Frame")
+            Indicator.Parent = ToggleBtn
+            Indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            Indicator.Position = Default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+            Indicator.Size = UDim2.new(0, 16, 0, 16)
+            Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
+
+            local Toggled = Default
+
+            ToggleBtn.MouseButton1Click:Connect(function()
+                Toggled = not Toggled
+                Callback(Toggled)
+                if Toggled then
+                    TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 120, 255)}):Play()
+                    TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -18, 0.5, -8)}):Play()
+                else
+                    TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
+                    TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -8)}):Play()
+                end
+            end)
+        end
+
+        return TabElements
+    end
+
+    return Window
+end
+
+return Library
