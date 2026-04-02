@@ -1,11 +1,21 @@
+-- UI Library - Night Hub Style (Modern Dark + Neon Blue)
+-- Tối ưu giống ảnh: gradient, stroke, tab highlight, card section, toggle glow, animation mượt
+
 local Library = {}
 local TweenService = game:GetService("TweenService")
 local CoreGui = game:GetService("CoreGui")
 local UserInputService = game:GetService("UserInputService")
 
--- Tránh trùng lặp UI khi chạy lại script
+-- Xóa UI cũ nếu tồn tại
 for _, v in pairs(CoreGui:GetChildren()) do
-    if v.Name == "NightHubUI" then v:Destroy() end
+    if v.Name == "NightHubUI" then
+        v:Destroy()
+    end
+end
+
+-- Hàm tạo hiệu ứng mượt (easing chuẩn)
+local function GetSmoothTween(duration)
+    return TweenInfo.new(duration or 0.2, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 end
 
 function Library:CreateWindow(Config)
@@ -15,7 +25,7 @@ function Library:CreateWindow(Config)
     NightHubUI.Name = "NightHubUI"
     NightHubUI.Parent = CoreGui
     NightHubUI.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
+    
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = NightHubUI
@@ -23,12 +33,28 @@ function Library:CreateWindow(Config)
     MainFrame.Position = UDim2.new(0.5, -300, 0.5, -200)
     MainFrame.Size = UDim2.new(0, 600, 0, 400)
     MainFrame.Active = true
-    MainFrame.Draggable = true -- Hỗ trợ kéo thả cơ bản
+    MainFrame.Draggable = true
     
+    -- Corner & Stroke & Gradient (giống ảnh)
     local UICorner = Instance.new("UICorner")
     UICorner.CornerRadius = UDim.new(0, 8)
     UICorner.Parent = MainFrame
-
+    
+    local UIStroke = Instance.new("UIStroke")
+    UIStroke.Parent = MainFrame
+    UIStroke.Color = Color3.fromRGB(0, 170, 255)
+    UIStroke.Thickness = 1.5
+    UIStroke.Transparency = 0.6
+    
+    local Gradient = Instance.new("UIGradient")
+    Gradient.Parent = MainFrame
+    Gradient.Color = ColorSequence.new{
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(15, 15, 15))
+    }
+    Gradient.Rotation = 90
+    
+    -- TopBar
     local TopBar = Instance.new("Frame")
     TopBar.Name = "TopBar"
     TopBar.Parent = MainFrame
@@ -38,7 +64,7 @@ function Library:CreateWindow(Config)
     local TopBarCorner = Instance.new("UICorner")
     TopBarCorner.CornerRadius = UDim.new(0, 8)
     TopBarCorner.Parent = TopBar
-
+    
     local Title = Instance.new("TextLabel")
     Title.Parent = TopBar
     Title.BackgroundTransparency = 1
@@ -49,7 +75,20 @@ function Library:CreateWindow(Config)
     Title.TextColor3 = Color3.fromRGB(255, 255, 255)
     Title.TextSize = 16
     Title.TextXAlignment = Enum.TextXAlignment.Left
-
+    
+    -- Version text (giống ảnh)
+    local Version = Instance.new("TextLabel")
+    Version.Parent = TopBar
+    Version.BackgroundTransparency = 1
+    Version.Position = UDim2.new(0, 120, 0, 0)
+    Version.Size = UDim2.new(0, 120, 1, 0)
+    Version.Font = Enum.Font.Gotham
+    Version.Text = "v1.0 - BETA"
+    Version.TextColor3 = Color3.fromRGB(0, 170, 255)
+    Version.TextSize = 13
+    Version.TextXAlignment = Enum.TextXAlignment.Left
+    
+    -- Tab Container (Sidebar)
     local TabContainer = Instance.new("Frame")
     TabContainer.Name = "TabContainer"
     TabContainer.Parent = MainFrame
@@ -65,18 +104,20 @@ function Library:CreateWindow(Config)
     TabListLayout.Parent = TabContainer
     TabListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     TabListLayout.Padding = UDim.new(0, 5)
-
+    
+    -- Content Container
     local ContentContainer = Instance.new("Frame")
     ContentContainer.Name = "ContentContainer"
     ContentContainer.Parent = MainFrame
     ContentContainer.BackgroundTransparency = 1
     ContentContainer.Position = UDim2.new(0, 160, 0, 50)
     ContentContainer.Size = UDim2.new(1, -170, 1, -60)
-
+    
     local Window = {}
     local FirstTab = true
-
+    
     function Window:CreateTab(TabName)
+        -- Tab button
         local TabButton = Instance.new("TextButton")
         TabButton.Parent = TabContainer
         TabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -88,8 +129,20 @@ function Library:CreateWindow(Config)
         TabButton.TextSize = 14
         TabButton.TextXAlignment = Enum.TextXAlignment.Left
         
-        Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 6)
-
+        local ButtonCorner = Instance.new("UICorner")
+        ButtonCorner.CornerRadius = UDim.new(0, 6)
+        ButtonCorner.Parent = TabButton
+        
+        -- Highlight indicator (thanh xanh bên trái)
+        local Indicator = Instance.new("Frame")
+        Indicator.Parent = TabButton
+        Indicator.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+        Indicator.Size = UDim2.new(0, 4, 1, 0)
+        Indicator.Position = UDim2.new(0, 0, 0, 0)
+        Indicator.Visible = false
+        Indicator.BorderSizePixel = 0
+        
+        -- Tab page (ScrollingFrame)
         local TabPage = Instance.new("ScrollingFrame")
         TabPage.Name = TabName
         TabPage.Parent = ContentContainer
@@ -97,70 +150,153 @@ function Library:CreateWindow(Config)
         TabPage.BackgroundTransparency = 1
         TabPage.Size = UDim2.new(1, 0, 1, 0)
         TabPage.ScrollBarThickness = 4
+        TabPage.CanvasSize = UDim2.new(0, 0, 0, 0)
+        TabPage.AutomaticCanvasSize = Enum.AutomaticSize.Y
         TabPage.Visible = FirstTab
         
         local PageLayout = Instance.new("UIListLayout")
         PageLayout.Parent = TabPage
         PageLayout.SortOrder = Enum.SortOrder.LayoutOrder
         PageLayout.Padding = UDim.new(0, 8)
-
+        
+        PageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+            TabPage.CanvasSize = UDim2.new(0, 0, 0, PageLayout.AbsoluteContentSize.Y + 10)
+        end)
+        
         if FirstTab then
-            TabButton.BackgroundColor3 = Color3.fromRGB(0, 120, 255)
+            TabButton.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
             TabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+            Indicator.Visible = true
             FirstTab = false
         end
-
+        
         TabButton.MouseButton1Click:Connect(function()
+            -- Reset tất cả tab buttons
             for _, v in pairs(TabContainer:GetChildren()) do
                 if v:IsA("TextButton") then
-                    TweenService:Create(v, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(35, 35, 35), TextColor3 = Color3.fromRGB(200, 200, 200)}):Play()
+                    TweenService:Create(v, GetSmoothTween(0.2), {
+                        BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+                        TextColor3 = Color3.fromRGB(200, 200, 200)
+                    }):Play()
+                    local ind = v:FindFirstChild("Frame")
+                    if ind and ind:IsA("Frame") then
+                        ind.Visible = false
+                    end
                 end
             end
-            TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 120, 255), TextColor3 = Color3.fromRGB(255, 255, 255)}):Play()
-
+            TweenService:Create(TabButton, GetSmoothTween(0.2), {
+                BackgroundColor3 = Color3.fromRGB(35, 35, 35),
+                TextColor3 = Color3.fromRGB(255, 255, 255)
+            }):Play()
+            Indicator.Visible = true
+            
+            -- Ẩn tất cả tab pages
             for _, page in pairs(ContentContainer:GetChildren()) do
-                if page:IsA("ScrollingFrame") then page.Visible = false end
+                if page:IsA("ScrollingFrame") then
+                    page.Visible = false
+                end
             end
             TabPage.Visible = true
         end)
-
+        
         local TabElements = {}
-
+        
+        -- Tạo section (card) giống ảnh
+        function TabElements:CreateSection(SectionName)
+            local Section = Instance.new("Frame")
+            Section.Parent = TabPage
+            Section.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+            Section.Size = UDim2.new(1, -10, 0, 100)
+            Section.AutomaticSize = Enum.AutomaticSize.Y
+            Section.BackgroundTransparency = 0
+            
+            local SectionCorner = Instance.new("UICorner")
+            SectionCorner.CornerRadius = UDim.new(0, 8)
+            SectionCorner.Parent = Section
+            
+            local SectionStroke = Instance.new("UIStroke")
+            SectionStroke.Parent = Section
+            SectionStroke.Color = Color3.fromRGB(0, 170, 255)
+            SectionStroke.Thickness = 1
+            SectionStroke.Transparency = 0.8
+            
+            local SectionTitle = Instance.new("TextLabel")
+            SectionTitle.Parent = Section
+            SectionTitle.BackgroundTransparency = 1
+            SectionTitle.Position = UDim2.new(0, 15, 0, 10)
+            SectionTitle.Size = UDim2.new(1, -20, 0, 25)
+            SectionTitle.Font = Enum.Font.GothamBold
+            SectionTitle.Text = SectionName
+            SectionTitle.TextColor3 = Color3.fromRGB(255, 255, 255)
+            SectionTitle.TextSize = 14
+            SectionTitle.TextXAlignment = Enum.TextXAlignment.Left
+            
+            local SectionLayout = Instance.new("UIListLayout")
+            SectionLayout.Parent = Section
+            SectionLayout.SortOrder = Enum.SortOrder.LayoutOrder
+            SectionLayout.Padding = UDim.new(0, 6)
+            SectionLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+            
+            -- Điều chỉnh vị trí title + content padding
+            local ContentPadding = Instance.new("UIPadding")
+            ContentPadding.Parent = Section
+            ContentPadding.PaddingTop = UDim.new(0, 35)
+            ContentPadding.PaddingLeft = UDim.new(0, 10)
+            ContentPadding.PaddingRight = UDim.new(0, 10)
+            ContentPadding.PaddingBottom = UDim.new(0, 10)
+            
+            return Section
+        end
+        
+        -- Button mới (có stroke animation)
         function TabElements:CreateButton(BtnConfig)
             local BtnName = BtnConfig.Name or "Button"
             local Callback = BtnConfig.Callback or function() end
-
+            
             local Button = Instance.new("TextButton")
             Button.Parent = TabPage
-            Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+            Button.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
             Button.Size = UDim2.new(1, -10, 0, 40)
             Button.Font = Enum.Font.Gotham
             Button.Text = BtnName
             Button.TextColor3 = Color3.fromRGB(255, 255, 255)
             Button.TextSize = 14
             
-            Instance.new("UICorner", Button).CornerRadius = UDim.new(0, 6)
-
+            local ButtonCorner = Instance.new("UICorner")
+            ButtonCorner.CornerRadius = UDim.new(0, 6)
+            ButtonCorner.Parent = Button
+            
+            local ButtonStroke = Instance.new("UIStroke")
+            ButtonStroke.Parent = Button
+            ButtonStroke.Color = Color3.fromRGB(255, 255, 255)
+            ButtonStroke.Thickness = 1
+            ButtonStroke.Transparency = 0.9
+            
             Button.MouseButton1Click:Connect(function()
                 Callback()
-                -- Hiệu ứng click
-                TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(0, 120, 255)}):Play()
+                -- Hiệu ứng click với stroke glow
+                TweenService:Create(ButtonStroke, GetSmoothTween(0.15), { Transparency = 0.3 }):Play()
+                TweenService:Create(Button, GetSmoothTween(0.1), { BackgroundColor3 = Color3.fromRGB(0, 120, 255) }):Play()
                 task.wait(0.1)
-                TweenService:Create(Button, TweenInfo.new(0.1), {BackgroundColor3 = Color3.fromRGB(30, 30, 30)}):Play()
+                TweenService:Create(Button, GetSmoothTween(0.1), { BackgroundColor3 = Color3.fromRGB(25, 25, 25) }):Play()
+                TweenService:Create(ButtonStroke, GetSmoothTween(0.2), { Transparency = 0.9 }):Play()
             end)
         end
-
+        
+        -- Toggle xịn (glow + smooth)
         function TabElements:CreateToggle(ToggleConfig)
             local TglName = ToggleConfig.Name or "Toggle"
             local Default = ToggleConfig.Default or false
             local Callback = ToggleConfig.Callback or function() end
-
+            
             local ToggleFrame = Instance.new("Frame")
             ToggleFrame.Parent = TabPage
             ToggleFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
             ToggleFrame.Size = UDim2.new(1, -10, 0, 40)
-            Instance.new("UICorner", ToggleFrame).CornerRadius = UDim.new(0, 6)
-
+            local FrameCorner = Instance.new("UICorner")
+            FrameCorner.CornerRadius = UDim.new(0, 6)
+            FrameCorner.Parent = ToggleFrame
+            
             local Label = Instance.new("TextLabel")
             Label.Parent = ToggleFrame
             Label.BackgroundTransparency = 1
@@ -171,40 +307,53 @@ function Library:CreateWindow(Config)
             Label.TextColor3 = Color3.fromRGB(255, 255, 255)
             Label.TextSize = 14
             Label.TextXAlignment = Enum.TextXAlignment.Left
-
+            
             local ToggleBtn = Instance.new("TextButton")
             ToggleBtn.Parent = ToggleFrame
-            ToggleBtn.BackgroundColor3 = Default and Color3.fromRGB(0, 120, 255) or Color3.fromRGB(50, 50, 50)
+            ToggleBtn.BackgroundColor3 = Default and Color3.fromRGB(0, 170, 255) or Color3.fromRGB(60, 60, 60)
             ToggleBtn.Position = UDim2.new(1, -55, 0.5, -10)
             ToggleBtn.Size = UDim2.new(0, 40, 0, 20)
             ToggleBtn.Text = ""
-            Instance.new("UICorner", ToggleBtn).CornerRadius = UDim.new(1, 0)
-
-            local Indicator = Instance.new("Frame")
-            Indicator.Parent = ToggleBtn
-            Indicator.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-            Indicator.Position = Default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
-            Indicator.Size = UDim2.new(0, 16, 0, 16)
-            Instance.new("UICorner", Indicator).CornerRadius = UDim.new(1, 0)
-
+            local ToggleCorner = Instance.new("UICorner")
+            ToggleCorner.CornerRadius = UDim.new(1, 0)
+            ToggleCorner.Parent = ToggleBtn
+            
+            -- Glow stroke
+            local GlowStroke = Instance.new("UIStroke")
+            GlowStroke.Parent = ToggleBtn
+            GlowStroke.Color = Color3.fromRGB(0, 170, 255)
+            GlowStroke.Thickness = 2
+            GlowStroke.Transparency = Default and 0.5 or 1
+            
+            local IndicatorCircle = Instance.new("Frame")
+            IndicatorCircle.Parent = ToggleBtn
+            IndicatorCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+            IndicatorCircle.Position = Default and UDim2.new(1, -18, 0.5, -8) or UDim2.new(0, 2, 0.5, -8)
+            IndicatorCircle.Size = UDim2.new(0, 16, 0, 16)
+            local CircleCorner = Instance.new("UICorner")
+            CircleCorner.CornerRadius = UDim.new(1, 0)
+            CircleCorner.Parent = IndicatorCircle
+            
             local Toggled = Default
-
+            
             ToggleBtn.MouseButton1Click:Connect(function()
                 Toggled = not Toggled
                 Callback(Toggled)
                 if Toggled then
-                    TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 120, 255)}):Play()
-                    TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = UDim2.new(1, -18, 0.5, -8)}):Play()
+                    TweenService:Create(ToggleBtn, GetSmoothTween(0.2), { BackgroundColor3 = Color3.fromRGB(0, 170, 255) }):Play()
+                    TweenService:Create(IndicatorCircle, GetSmoothTween(0.2), { Position = UDim2.new(1, -18, 0.5, -8) }):Play()
+                    TweenService:Create(GlowStroke, GetSmoothTween(0.2), { Transparency = 0.5 }):Play()
                 else
-                    TweenService:Create(ToggleBtn, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(50, 50, 50)}):Play()
-                    TweenService:Create(Indicator, TweenInfo.new(0.2), {Position = UDim2.new(0, 2, 0.5, -8)}):Play()
+                    TweenService:Create(ToggleBtn, GetSmoothTween(0.2), { BackgroundColor3 = Color3.fromRGB(60, 60, 60) }):Play()
+                    TweenService:Create(IndicatorCircle, GetSmoothTween(0.2), { Position = UDim2.new(0, 2, 0.5, -8) }):Play()
+                    TweenService:Create(GlowStroke, GetSmoothTween(0.2), { Transparency = 1 }):Play()
                 end
             end)
         end
-
+        
         return TabElements
     end
-
+    
     return Window
 end
 
