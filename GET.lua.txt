@@ -787,7 +787,7 @@ local Themes = {
 }
 
 local Library = {
-	Version = "1.1.0",
+	Version = "2.2.0",
 
 	OpenFrames = {},
 	Options = {},
@@ -1684,7 +1684,7 @@ function AcrylicPaint()
 			BorderSizePixel = 0,
 		}, {
 			New("ImageLabel", {
-				Image = "rbxassetid://8992230677",
+				Image = "rbxassetid://132147561870079",
 				ScaleType = "Slice",
 				SliceCenter = Rect.new(Vector2.new(99, 99), Vector2.new(99, 99)),
 				AnchorPoint = Vector2.new(0.5, 0.5),
@@ -5334,7 +5334,7 @@ ElementsTable.Colorpicker = (function()
 				Position = UDim2.fromOffset(20, 55),
 				Image = "rbxassetid://4155801252",
 				BackgroundColor3 = Colorpicker.Value,
-				BackgroundTransparency = 0,
+				BackgroundTransparency = 0.40,
 				Parent = Dialog.Root,
 			}, {
 				New("UICorner", {
@@ -5376,7 +5376,7 @@ ElementsTable.Colorpicker = (function()
 			local DialogDisplayFrame = New("Frame", {
 				BackgroundColor3 = Colorpicker.Value,
 				Size = UDim2.fromScale(1, 1),
-				BackgroundTransparency = 0,
+				BackgroundTransparency = 0.40,
 			}, {
 				New("UICorner", {
 					CornerRadius = UDim.new(0, 4),
