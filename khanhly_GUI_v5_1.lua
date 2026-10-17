@@ -1,4 +1,4 @@
--- UI khanhlyhub
+-- khanhlyhub ok
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -92,10 +92,6 @@ function KhanhlyV5.new(userConfig)
 		rawThemeName = "LiquidGlass"
 	end
 	local activePreset = THEME_PRESETS[rawThemeName]
-
-	------------------------------------------------------------------------
-	-- 1. CONFIG
-	------------------------------------------------------------------------
 	local logoId = userConfig.Logo or userConfig.LeftImage or "rbxassetid://111673746737789"
 	local CONFIG = {
 		GuiName = userConfig.GuiName or "KHANHLYHUB",
@@ -159,6 +155,9 @@ function KhanhlyV5.new(userConfig)
 		oldBlur:Destroy()
 	end
 
+	------------------------------------------------------------------------
+	-- 2. THEME + HELPER
+	------------------------------------------------------------------------
 	local C = {
 		Bg = activePreset.Bg,
 		White = Color3.fromRGB(255, 255, 255),
