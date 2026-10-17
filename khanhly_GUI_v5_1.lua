@@ -1,35 +1,4 @@
---[[
-	khanhlyHUB • Dynamic Island (GUI kaitun khanhly) — V5.1
-	LocalScript -> StarterPlayerScripts, chạy trực tiếp, hoặc dùng như thư viện:
-	    local khanhly_v5 = loadstring(game:HttpGet("URL_RAW"))()
-	    khanhly_v5.new({ Title = "khanhly", Description = "ok", Logo = "rbxassetid://..." })
-	Chỉ là UI: không gọi remote, không tự động hoá gameplay.
-
-	V5.1 SỬA GÌ SO VỚI V5
-	  ÁNH SÁNG
-	    * Toàn bộ lớp sáng nằm trong một container "Light" bên trong CanvasGroup của island.
-	      CanvasGroup tự cắt theo góc bo, nên ánh sáng LUÔN khớp hình pill / tròn / card ở mọi kích cỡ
-	      (không còn thanh sheen 12px bo góc riêng nằm lệch hình).
-	    * Vệt sáng quét (sweep) là dải chéo nằm DƯỚI chữ, không phủ lên nội dung.
-	    * Cường độ sáng đi theo thanh trượt GLASS; mỗi theme có tông kính riêng.
-	  KHUNG ẢNH
-	    * Một hàm avatar() duy nhất: khung tròn/bo góc + viền mảnh + ảnh Crop + chữ dự phòng
-	      (cả khi ảnh load lỗi). Huy hiệu loại thông báo nằm đúng trên mép vòng tròn logo.
-	  PC / MOBILE
-	    * Scale tính theo chiều cao, chiều rộng VÀ chiều cao card lớn nhất, nên card không tràn
-	      điện thoại ngang, không quá nhỏ trên màn 4K.
-	    * Né tai thỏ / vùng an toàn (ScreenInsets = DeviceSafeInsets).
-	    * Nút tròn và thanh trượt có vùng chạm 40px / 28px (trước đó chỉ 30px / 6px).
-	  LOGIC
-	    * Chạm pill đúng lúc thông báo sắp hiện không còn làm mất thông báo.
-	    * Intro không ghi đè island đang phát thông báo.
-	    * Đổi theme cập nhật MỌI chỗ dùng màu accent (trước chỉ vài chỗ).
-	    * Chiều cao nội dung chi tiết tính cả LineHeight, chữ dài bị cắt "…" thay vì tràn.
-	    * Đếm ngược của card chi tiết tạm dừng khi bạn rê / giữ ngón tay để đọc.
-	    * Bỏ Lighting blur mặc định (GlassBlur = true nếu thật sự muốn).
-	    * Chạy trực tiếp file là hiện GUI (tắt: getgenv().KhanhlyV5_AutoStart = false).
-]]
-
+-- UI khanhlyhub
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
@@ -42,9 +11,6 @@ local ContentProvider = game:GetService("ContentProvider")
 local LocalPlayer = Players.LocalPlayer
 local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
 
-------------------------------------------------------------------------
--- PHẦN 1: CORE LIBRARY
-------------------------------------------------------------------------
 local KhanhlyV5 = {}
 KhanhlyV5.__index = KhanhlyV5
 KhanhlyV5.Version = "5.1.0"
@@ -193,9 +159,6 @@ function KhanhlyV5.new(userConfig)
 		oldBlur:Destroy()
 	end
 
-	------------------------------------------------------------------------
-	-- 2. THEME + HELPER
-	------------------------------------------------------------------------
 	local C = {
 		Bg = activePreset.Bg,
 		White = Color3.fromRGB(255, 255, 255),
